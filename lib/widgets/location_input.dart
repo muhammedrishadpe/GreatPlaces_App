@@ -1,6 +1,5 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 import '../helpers/location_help.dart';
@@ -17,24 +16,27 @@ class _LocationInputState extends State<LocationInput> {
   Future<void> _getCurrentUserLocation() async {
     final locData = await Location().getLocation();
     final staticMapImageUrl = LocationHelper.generateLocationPreviewImage(
-        latitude: locData.latitude, longitude: locData.longitude);
-
+      latitude: locData.latitude,
+      longitude: locData.longitude,
+    );
     setState(() {
       _previewImageUrl = staticMapImageUrl;
     });
   }
 
-  Future<Void> _selectOnMap() async {
-    final selectedLocation = await Navigator.of(context).push(
+  Future<void> _selectOnMap() async {
+    final selectedLocation = await Navigator.of(context).push<LatLng>(
       MaterialPageRoute(
+        fullscreenDialog: true,
         builder: (ctx) => MapScreen(
           isSelecting: true,
         ),
       ),
     );
     if (selectedLocation == null) {
-      return null;
+      return;
     }
+    print(selectedLocation.latitude);
     // ...
   }
 
@@ -64,19 +66,23 @@ class _LocationInputState extends State<LocationInput> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             FlatButton.icon(
-              icon: Icon(Icons.location_on),
+              icon: Icon(
+                Icons.location_on,
+              ),
               label: Text('Current Location'),
               textColor: Theme.of(context).primaryColor,
               onPressed: _getCurrentUserLocation,
             ),
             FlatButton.icon(
-              icon: Icon(Icons.map),
+              icon: Icon(
+                Icons.map,
+              ),
               label: Text('Select on Map'),
               textColor: Theme.of(context).primaryColor,
               onPressed: _selectOnMap,
             ),
           ],
-        )
+        ),
       ],
     );
   }
